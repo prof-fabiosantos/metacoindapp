@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta http-equiv="X-UA-Compatible" content="ie=edge">
+ <title>Document</title>
+<link rel="stylesheet" type="text/css" href="index.css">
+<script src="js/web3.min.js"></script>
+</head>
+<body>
+		
+	<div class="container">
+        <img id="logo" src="./image/35.png">
+        <br><br>
+        <a href="index.html">Depositar</a>
+		<h2 id="instructor"></h2>
+	
+        <span id="insTrans"></span>
+        <hr>
+
+        <img id="loader" src="./image/Double Ring-1s-200px.gif"">
+
+        <label for="enderecoProprietario" class="col-lg-2 control-label">Conta:</label>
+        <input id="enderecoProprietario" type="text">
+
+        <button id="button">Consultar</button>
+
+    </div>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script>
+
+		if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+			//alert("metamask ok");
+        } else {
+             web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+        }
+	 
+			   
+	web3.eth.getAccounts(function(err, accounts){
+    if (err != null) {
+      console.log(err);
+    }
+    else if (accounts.length === 0) {
+      console.log('MetaMask is locked');
+	}
+    else {
+     web3.eth.defaultAccount = accounts[0];
+	 //alert(web3.eth.defaultAccount);
+	}
+   });
+	
+   var OceanCoinContract = web3.eth.contract([
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "addr",
+				"type": "address"
+			}
+		],
+		"name": "getSaldo",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "receiver",
+				"type": "address"
+			},
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "sendCoin",
+		"outputs": [
+			{
+				"name": "sufficient",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	}
+]);
+
+       var OceanCoin = OceanCoinContract.at('0xA3DEFB353d66aECFAc57Ec9BD2c98CF032870506');
+      
+	 	      
+		$("#button").click(function() {
+			$("#loader").show();
+            OceanCoin.getSaldo($("#enderecoProprietario").val(), 
+			function(error, result){
+			if(!error){
+				console.log("ok");
+                $("#loader").hide();
+                $("#instructor").html(result + ' Meta Coins de saldo');	
+            }	
+			else {
+                 alert(error);    
+                  $("#loader").hide();
+            }
+			});
+        });
+   
+
+    </script>
+</body>
+</html>
